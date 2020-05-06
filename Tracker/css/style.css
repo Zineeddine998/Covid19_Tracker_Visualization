@@ -1,0 +1,304 @@
+button,hr,input{overflow:visible}progress,sub,sup{vertical-align:baseline}[type=checkbox],[type=radio],legend{box-sizing:border-box;padding:0}html{line-height:1.15;-webkit-text-size-adjust:100%}body{margin:0}details,main{display:block}h1{font-size:2em;margin:.67em 0}hr{box-sizing:content-box;height:0}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}a{background-color:transparent}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:bolder}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}button,input,optgroup,select,textarea{font-family:inherit;font-size:100%;line-height:1.15;margin:0}button,select{text-transform:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:ButtonText dotted 1px}fieldset{padding:.35em .75em .625em}legend{color:inherit;display:table;max-width:100%;white-space:normal}textarea{overflow:auto}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}summary{display:list-item}[hidden],template{display:none}
+
+
+html {
+  --grey: #e7e7e7;
+  --gray: var(--grey);
+  --blue: #0072B9;
+  --pink: #D60087;
+  --yellow: #ffc600;
+  --black: #2e2e2e;
+  --red: #c73737;
+  --green: #61e846;
+  
+  --box-shadow: 0 0 5px 5px rgba(0,0,0,0.2);
+  font-size: 62.5%;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+ 
+  
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+h1 ,h2, h3, h4, h5{
+  color:white;
+  
+}
+body {
+  font-size: 2rem;
+  line-height: 1.5;
+  margin: 0;
+  padding: 0;
+  background-color: #484848;
+  background-image: url(/wavey.svg);
+  background-attachment: fixed;
+  background-size: cover;
+  
+  
+}
+
+/* Table Styles */
+
+
+table {
+  border-radius: 5px;
+  overflow: hidden;
+  margin-bottom: 2rem;
+  border-collapse: collapse;
+}
+
+td, th {
+  border: 1px solid var(--grey);
+  padding: 0.5rem;
+}
+
+
+
+
+
+.card {
+  position: relative;
+  text-align: left;
+  border: 0px;
+  border-radius: 10px;
+  background-color: #161616;
+  height: 100px;
+  width: 300px;
+  margin: 20px 10px;
+  color: coral;
+  border-top: solid,red;
+ 
+  
+ 
+}
+img{
+  position: fixed;
+  top: 0;
+  left: 0;
+  
+  height: 300px;
+  width: 300px;
+}
+
+.card-top {
+  height: 5px;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: red;
+}
+
+.card-body {
+  padding: 20px;
+  position: relative;
+}
+
+.card-icon {
+  margin: 5px;
+  height: 60px;
+  width: 60px;
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+}
+
+
+#map {
+  /* position: relative; */
+  top: 0;
+  bottom: 0;
+  height: 30em;
+  width: 120%;
+  border-radius: 10px;
+}
+
+
+:focus {
+  outline-color: var(--pink);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: white;
+  margin-top: 0;
+  line-height: 1;
+  text-shadow: var(--text-shadow);
+}
+
+ select {
+  display: block;
+  padding: 1rem;
+  margin: 20px;
+  border: 1px solid var(--grey);
+  outline: none;
+}
+
+.deaths {
+  color: var(--red);
+}
+.cases {
+  color: var(--yellow);
+}
+
+/* Make clicks pass-through */
+#nprogress {
+  pointer-events: none;
+}
+
+#nprogress .bar {
+  background: var(--green);
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 5px;
+}
+
+/* Fancy blur effect */
+#nprogress .peg {
+  display: block;
+  position: absolute;
+  right: 0px;
+  width: 100px;
+  height: 100%;
+  box-shadow: 0 0 10px var(--green), 0 0 5px green;
+  opacity: 1.0;
+
+  -webkit-transform: rotate(3deg) translate(0px, -4px);
+      -ms-transform: rotate(3deg) translate(0px, -4px);
+          transform: rotate(3deg) translate(0px, -4px);
+}
+
+/* Remove these to get rid of the spinner */
+#nprogress .spinner {
+  display: block;
+  position: fixed;
+  z-index: 1031;
+  top: 15px;
+  right: 15px;
+}
+
+#nprogress .spinner-icon {
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+
+  border: solid 2px transparent;
+  border-top-color: var(--green);
+  border-left-color: var(--green);
+  border-radius: 50%;
+
+  -webkit-animation: nprogress-spinner 400ms linear infinite;
+          animation: nprogress-spinner 400ms linear infinite;
+}
+
+.nprogress-custom-parent {
+  overflow: hidden;
+  position: relative;
+}
+
+.nprogress-custom-parent #nprogress .spinner,
+.nprogress-custom-parent #nprogress .bar {
+  position: absolute;
+}
+
+@-webkit-keyframes nprogress-spinner {
+  0%   { -webkit-transform: rotate(0deg); }
+  100% { -webkit-transform: rotate(360deg); }
+}
+@keyframes nprogress-spinner {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+
+.custom-select {
+  position: relative;
+  font-family: Arial;
+  width: 50%;
+}
+
+.custom-select select {
+  display: none; 
+}
+
+.select-selected {
+  background-color: #33cc33;
+}
+
+
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+}
+
+
+.select-items {
+  position: absolute;
+  background-color: #33cc33;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+.background {
+  
+  position
+  :
+   absolute
+  ;
+    
+  display
+  :
+   block
+  ;
+    
+  top
+  : 0;
+    
+  left
+  : 0;
+    
+  z-index
+  : 0;
+  }
