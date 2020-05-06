@@ -1,6 +1,6 @@
 window.addEventListener('DOMContentLoaded',initializeApp);
 
-//the main api
+//Retrieving the data from this public api
 const baseUrl = 'https://coronavirus-tracker-api.herokuapp.com/v2/locations';
 
  async function  initializeApp(){
@@ -10,14 +10,223 @@ const baseUrl = 'https://coronavirus-tracker-api.herokuapp.com/v2/locations';
     populateLocations();
     NProgress.start();
     await performAsyncCall();
-    
     NProgress.done();
+    renderUI(coronaData.latest,world=true);
+    renderMap();
     console.log(`Corona Latest statsus:  ${coronaData.latest}`);
     console.log(`Corona locations : ${coronaData.locations}`);
 }
 let coronaData ={
     latest:[],
     locations:[],
+};
+
+let geoCoder;
+
+
+async function getReverseFromLatLngToPlace(lat,lng){
+    return new Promise((resolve,reject) => {
+        geoCoder.mapboxClient.geocodeReverse({
+            latitude: parseFloat(lat),
+            longitude: parseFloat(lng)
+        },
+        function(error,response){
+            if(error){
+                reject(error);
+            }
+            resolve(response.features[0] && response.features[0].place_name);
+        })
+    })
+
+}
+ function renderMap(){
+    mapboxgl.accessToken = 'pk.eyJ1Ijoic2NhcGVzY2VuZSIsImEiOiJjazl1bDB5eXQwMnNuM2Vtb3dqbXlyMXl2In0.Qamb5zTT2ma8kbpSKV4kOQ';
+    const map = new mapboxgl.Map({
+    container: 'map',
+    style: 'mapbox://styles/mapbox/dark-v10',
+    center: [-103.59179687498357, 40.66995747013945],
+    zoom: 3
+    });
+
+    geoCoder = new MapboxGeocoder({
+        accessToken : mapboxgl.accessToken,
+    });
+ map.addControl(geoCoder);
+ map.addControl(new mapboxgl.NavigationControl());
+     
+    map.on('load',async function() {
+    
+    map.addSource('Locations', {
+    type: 'geojson',
+  
+    data:
+    {
+        type:'FeatureCollection',
+        crs: { 
+            type: "name", 
+            properties: { 
+                name: "urn:ogc:def:crs:OGC:1.3:CRS84"
+             } 
+            },
+
+        features : await Promise.all(coronaData.locations.map(async location => {
+           let placeName = await getReverseFromLatLngToPlace(location.coordinates.latitude,location.coordinates.longitude); 
+           console.log(placeName);
+            return {
+                type : "Feature",
+                properties: {
+               description : ` <table  class="table">
+                <thead>
+                ${placeName}</thead>
+        
+                <tbody>
+                <tr>
+                <td>Number of confirmed cases:</td>
+                <td>${location.latest.confirmed}</td>
+                </tr>
+                <tr>
+                <td>Number of death cases:</td>
+                <td>${location.latest.deaths}</td>
+                </tr>
+                <td>Longitude:</td>
+                <td>${location.coordinates.latitude}</td>
+                </tr>
+                <td>Latitude:</td>
+                <td>${location.coordinates.longitude}</td>
+                </tr>
+                </tbody>
+                
+                </table>
+                `,
+
+                icon : "rocket"
+            },
+             geometry: {
+                  type:"Point",
+                  coordinates : [ 
+                      `${location.coordinates.longitude}`,
+                      `${location.coordinates.latitude}`
+                      ]
+             }
+         }
+
+           
+        }))
+
+
+    },
+    cluster: true,
+    clusterMaxZoom: 14, // Max zoom to cluster points on
+    clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
+    });
+     
+    map.addLayer({
+    id: 'clusters',
+    type: 'circle',
+    source: 'Locations',
+    filter: ['has', 'point_count'],
+    paint: {
+    // Use step expressions (https://docs.mapbox.com/mapbox-gl-js/style-spec/#expressions-step)
+    // with three steps to implement three types of circles:
+    //   * Blue, 20px circles when point count is less than 100
+    //   * Yellow, 30px circles when point count is between 100 and 750
+    //   * Pink, 40px circles when point count is greater than or equal to 750
+    'circle-color': [
+    'step',
+    ['get', 'point_count'],
+    '#51bbd6',
+    100,
+    '#f1f075',
+    750,
+    '#f28cb1'
+    ],
+    'circle-radius': [
+    'step',
+    ['get', 'point_count'],
+    20,
+    100,
+    30,
+    750,
+    40
+    ]
+    }
+    });
+     
+    map.addLayer({
+    id: 'cluster-count',
+    type: 'symbol',
+    source: 'Locations',
+    filter: ['has', 'point_count'],
+    layout: {
+    'text-field': '{point_count_abbreviated}',
+    'text-font': ['DIN Offc Pro Medium', 'Arial Unicode MS Bold'],
+    'text-size': 12
+    }
+    });
+     
+    map.addLayer({
+    id: 'unclustered-point',
+    type: 'circle',
+    source: 'Locations',
+    filter: ['!', ['has', 'point_count']],
+    paint: {
+    'circle-color': '#11b4da',
+    'circle-radius': 4,
+    'circle-stroke-width': 1,
+    'circle-stroke-color': '#fff'
+    }
+    });
+     
+    // inspect a cluster on click
+    map.on('click', 'clusters', function(e) {
+    var features = map.queryRenderedFeatures(e.point, {
+    layers: ['clusters']
+    });
+    var clusterId = features[0].properties.cluster_id;
+    map.getSource('Locations').getClusterExpansionZoom(
+    clusterId,
+    function(err, zoom) {
+    if (err) return;
+     
+    map.easeTo({
+    center: features[0].geometry.coordinates,
+    zoom: zoom
+    });
+    }
+    );
+    });
+     
+    // When a click event occurs on a feature in
+    // the unclustered-point layer, open a popup at
+    // the location of the feature, with
+    // description HTML from its properties.
+    map.on('click', 'unclustered-point', function(event) {
+    const coordinates = event.features[0].geometry.coordinates.slice();
+    const {description} = event.features[0].properties;
+    
+     
+    // Ensure that if the map is zoomed out such that
+    // multiple copies of the feature are visible, the
+    // popup appears over the copy being pointed to.
+    while (Math.abs(event.lngLat.lng - coordinates[0]) > 180) {
+    coordinates[0] += event.lngLat.lng > coordinates[0] ? 360 : -360;
+    }
+     
+    new mapboxgl.Popup()
+    .setLngLat(coordinates)
+    .setHTML(description
+    )
+    .addTo(map);
+    });
+     
+    map.on('mouseenter', 'clusters', function() {
+    map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'clusters', function() {
+    map.getCanvas().style.cursor = '';
+    });
+    });
+
 }
 async function performAsyncCall(){
 
@@ -335,4 +544,36 @@ function renderDetailsForSelectedLocation(event){
       
     });
     console.log(locationDetails);
+    let world =false;
+    renderUI(locationDetails,world);
+
+    }
+
+    function renderUI(details,world=false){
+        let html =`
+        <table  class="table">
+        <thead>
+        ${world ?  `<h4>World Details</h4>` : `<tr>${details.country}--${details.country}</tr>` }</thead>
+
+        <tbody>
+        <tr>
+        ${world ?  `<td>${details.confirmed}</td>` : `<td>${details.latest.confirmed}</td>` }
+        
+        </tr>
+        <tr>
+        ${world ?  `<td>${details.deaths}</td>` : `<td>${details.latest.deaths}</td>` }
+        
+        </tr>
+        </tbody>
+        
+        </table>
+    
+        `;
+
+        if(world){
+
+            coronaWorldDetails.innerHTML = html;
+        }else{
+            coronaDEtailsContainer.innerHTML =html;
+        }
     }
