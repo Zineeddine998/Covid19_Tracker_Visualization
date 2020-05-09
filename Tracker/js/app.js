@@ -96,7 +96,6 @@ async function getReverseFromLatLngToPlace(lat,lng){
                 <td>${location.coordinates.longitude}</td>
                 </tr>
                 </tbody>
-                
                 </table>
                 `,
 
@@ -542,9 +541,7 @@ function renderDetailsForSelectedLocation(event){
             confirmed :0,
             deaths:0,
        }
-      
     });
-    
     
     renderUI(locationDetails,world=false);
 
@@ -552,8 +549,7 @@ function renderDetailsForSelectedLocation(event){
 
     function renderUI(details,world){
         let html =`
-       
-      <div class="card">
+       <div class="card">
         <div class="card-top"></div>
         <div class="card-body">
           <h4>
@@ -561,13 +557,9 @@ function renderDetailsForSelectedLocation(event){
           </h4>
           ${world ?  `<h5>Number of confirmed cases :${details.confirmed}</h5>` : `<h5>Number of confirmed cases : ${details.latest.confirmed}</h5>`}
           ${world ?  `<h5>Number of deaths: ${details.deaths}</h5>` : `<h5> Number of deaths: ${details.latest.deaths}</h5>`}
-        
-        
+         </div>
         </div>
-        
-      </div>
-    
-        `;
+    `;
 
         if(world){
 
@@ -575,4 +567,5 @@ function renderDetailsForSelectedLocation(event){
         }else{
             coronaDEtailsContainer.innerHTML =html;
         }
+        
     }
